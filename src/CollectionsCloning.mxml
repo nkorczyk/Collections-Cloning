@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--- 
+	Klonowanie kolekcji używając property 'source' i 'list'.
+	setter method ArrayCollection.source tworzy nową ArrayListę.
+	Oznacza to, że obie kolekcje (_ac1 i _ac2) mają ten sam 'source' ale różny 'list'
+	Różnice wynikające ze współdzielenia przez dwie kolekcje tego samego 'source' lub 'list'?
+	Atrybut 'list' IList wysyła collection events a atrybut 'source' Array nie.
+	1. Oznacza to, że jeżeli dwie kolekcje współdzielą property 'source' to jeżeli w zajdą zmiany w pierwszej kolekcji
+	to nie będą one odzwierciedlone w drugiej kolekcji.
+	2. Natomiast jeżeli dwie kolekcje współdzielą property 'list' to jeżeli w zajdą zmiany w pierwszej kolekcji
+	to zostaną one natychmiast odzwierciedlone w drugiej kolekcji.
+-->
+<mx:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" layout="vertical"
+				width="100%" height="100%"
+				creationComplete="application1_creationCompleteHandler(event)">
+	<mx:VBox id="vb1" horizontalAlign="left">
+		<mx:Label text="Współdzielony atrybut 'source'" fontSize="16"/>
+		<mx:HBox>
+			<mx:DataGrid id="dg1" width="300" height="300"
+						 dataProvider="{_ac1}"/>
+			<mx:DataGrid id="dg2" width="300" height="300"
+						 dataProvider="{_ac2}"/>		
+		</mx:HBox>
+		<mx:Button id="button1" label="Remove from first table"
+				   enabled="{dg1.selectedItem}"
+				   click="button1_clickHandler(event)"/>
+	</mx:VBox>
+	<mx:HRule width="{vb1.width}"/>
+	<mx:VBox id="vb2" horizontalAlign="left">
+		<mx:Label text="Współdzielony atrybut 'list'" fontSize="16"/>
+		<mx:HBox>
+			<mx:DataGrid id="dg3" width="300" height="300"
+						 dataProvider="{_ac3}"/>
+			<mx:DataGrid id="dg4" width="300" height="300"
+						 dataProvider="{_ac4}"/>		
+		</mx:HBox>
+		<mx:Button id="button3" label="Remove from first table"
+				   enabled="{dg3.selectedItem}"
+				   click="button3_clickHandler(event)"/>
+		<mx:Button id="button4" label="Remove from second table"
+				   enabled="{dg4.selectedItem}"
+				   click="button4_clickHandler(event)"/>
+	</mx:VBox>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			[Bindable]
+			private var _ac1:ArrayCollection; 
+			[Bindable]
+			private var _ac2:ArrayCollection;
+			[Bindable]
+			private var _ac3:ArrayCollection;
+			[Bindable]
+			private var _ac4:ArrayCollection;
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				_ac1.removeItemAt(dg1.selectedIndex);
+				_ac1.refresh();
+			}			
+			
+			protected function button3_clickHandler(event:MouseEvent):void
+			{
+				_ac3.removeItemAt(dg3.selectedIndex);
+				_ac3.refresh();
+			}		
+			
+			protected function button4_clickHandler(event:MouseEvent):void
+			{
+				_ac4.removeItemAt(dg4.selectedIndex);
+				_ac4.refresh();
+			}		
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				_ac1 = new ArrayCollection([
+					{label:"One", data:1},
+					{label:"Two", data:2},
+					{label:"Three", data:3},
+					{label:"Four", data:4},
+					{label:"Five", data:5},
+					{label:"Six", data:6},
+					{label:"Seven", data:7},
+					{label:"Eight", data:8}
+				]);
+				// 'source' - ArrayCollection setter method 
+				_ac2 = new ArrayCollection(_ac1.source); // _ac1 i _ac2 współdzielą ten sam 'source' property
+				
+				////////////////////////////////////////
+				
+				_ac3 = new ArrayCollection([
+					{label:"One", data:1},
+					{label:"Two", data:2},
+					{label:"Three", data:3},
+					{label:"Four", data:4},
+					{label:"Five", data:5},
+					{label:"Six", data:6},
+					{label:"Seven", data:7},
+					{label:"Eight", data:8}
+				]);
+				_ac4 = new ArrayCollection();
+				// 'list' - LisCollectionView setter method 
+				_ac4.list = _ac3.list; // _ac3 i _ac4 współdzielą ten sam 'list' property
+			}
+		]]>
+	</fx:Script>
+</mx:Application>
